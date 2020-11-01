@@ -345,7 +345,7 @@ SPECIAL_FOO_LEVEL=11
 
 ## Define container environment variables with data from multiple ConfigMaps
 
-* multiple_configmaps.yaml
+* conf/multiple_configmaps.yaml
 ```
 apiVersion: v1
 kind: ConfigMap
@@ -353,7 +353,7 @@ metadata:
   name: special-foo-level-config
   namespace: default
 data:
-  foo.level: 12
+  foo.level: "12"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -361,13 +361,13 @@ metadata:
   name: special-foo-file-config
   namespace: default
 data:
-  foo.file: /etc/special-foo-file-config
+  foo.file: "/etc/special-foo-file-config"
 ```
 
 Then create a ConfigMap from it.
 
 ```
-$ kubectl create -f multiple_configmaps.yaml
+$ kubectl create -f conf/multiple_configmaps.yaml
 ```
 
 Define environment variables.
@@ -401,7 +401,61 @@ Create the Pod.
 
 ```
 $ kubectl create -f pod-multiple-configmap-env-variable.yaml
+$ kubectl logs special-foo-multiple-configmaps-pod
+...
+SPECIAL_FOO_FILE=/etc/special-foo-file-config
+SPECIAL_FOO_LEVEL=12
+...
 ```
+
+## Configure all key-value pairs in a ConfigMap as container environment variables
+
+* conf/configmap-all-key-value-pairs.yaml
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: all-key-value-config
+  namespace: default
+data:
+  SPECIAL_FOO_LEVAL: "13"
+  SPECIAL_FOO_FILE: "/etc/special_all_key_value_config.conf"
+```
+
+```
+$ kubectl create -f conf/configmap-all-key-value-pairs.yaml
+```
+
+Use `envFrom` to define all of the ConfigMap's data as container environment variables.
+
+* pod-all-key-value-pairs.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: all-key-value-pairs-pod
+spec:
+  containers:
+    - name: all-key-value-pairs-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "env"]
+      envFrom:
+      - configMapRef:
+          name: all-key-value-config
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f pod-all-key-value-pairs.yaml
+$ kubectl logs all-key-value-pairs-pod
+...
+SPECIAL_FOO_FILE=/etc/special_all_key_value_config.conf
+SPECIAL_FOO_LEVAL=13
+...
+```
+
+## Use ConfigMap-defined environment variables in Pod commands
+TODO:
 
 # Reference
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
