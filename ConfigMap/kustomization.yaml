@@ -1,4 +1,5 @@
 configMapGenerator:
-- name: foo-generator-config
-  files:
-  - conf/foo.properties
+- name: foo-generator-literal-config
+  literals:
+  - foo.level=10
+  - foo.file=/etc/foo-generator-literal-config.conf

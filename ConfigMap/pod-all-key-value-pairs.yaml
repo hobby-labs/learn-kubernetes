@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: all-key-value-pairs-pod
+spec:
+  containers:
+    - name: all-key-value-pairs-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "env"]
+      envFrom:
+      - configMapRef:
+          name: all-key-value-config
+  restartPolicy: Never
