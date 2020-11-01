@@ -266,6 +266,81 @@ NAME                                  DATA   AGE
 ...
 foo-generator-key-config-cmcb78kk7k   1      2m25s
 ...
+$ kubectl get configmap/foo-generator-key-config-cmcb78kk7k -o yaml
+apiVersion: v1
+data:
+  foo-generator-key: |
+    foo.level=1
+    foo.file=/etc/foo.conf
+kind: ConfigMap
+...
+```
+
+## Create ConfigMap with literals from generator
+
+```
+$ cat << EOF > ./kustomization.yaml
+configMapGenerator:
+- name: foo-generator-literal-config
+  literals:
+  - foo.level=10
+  - foo.file=/etc/foo-generator-literal-config.conf
+EOF
+```
+
+```
+$ kubectl apply -k .
+$ kubectl get configmap
+NAME                                      DATA   AGE
+...
+foo-generator-literal-config-m8c5949672   2      33m
+...
+```
+
+# Define container environment variables using ConfigMap data
+## Define a container environment variable with data from a single ConfigMap
+
+```
+$ kubectl create configmap foo-special-config --from-literal=foo.level=11 --from-literal=foo.file=/etc/foo-special-config.conf
+```
+
+If you want to assign `foo.level` to the value `SPECIAL_FOO_LEVEL`, create manifest like below.
+
+* pod-single-configmap-env-variable.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: foo-special-config-pod
+spec:
+  containers:
+    - name: test-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "env"]
+      env:
+        - name: SPECIAL_FOO_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: foo-special-config
+              key: foo.level
+        - name: SPECIAL_FOO_FILE
+          valueFrom:
+            configMapKeyRef:
+              name: foo-special-config
+              key: foo.file
+  restartPolicy: Never
+```
+
+Create the Pod.
+
+```
+$ kubectl create -f ./pod-single-configmap-env-variable.yaml
+$ # After few seconds...
+$ kubectl logs foo-special-config-pod
+...
+SPECIAL_FOO_FILE=/etc/foo-special-config.conf
+SPECIAL_FOO_LEVEL=11
+...
 ```
 
 # Reference
