@@ -1,0 +1,4 @@
+configMapGenerator:
+- name: foo-generator-config
+  files:
+  - conf/foo.properties
