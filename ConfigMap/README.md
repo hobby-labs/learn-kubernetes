@@ -331,7 +331,7 @@ spec:
   restartPolicy: Never
 ```
 
-Create the Pod.
+Create the Pod then you can see the values like below.
 
 ```
 $ kubectl create -f ./pod-single-configmap-env-variable.yaml
@@ -341,6 +341,66 @@ $ kubectl logs foo-special-config-pod
 SPECIAL_FOO_FILE=/etc/foo-special-config.conf
 SPECIAL_FOO_LEVEL=11
 ...
+```
+
+## Define container environment variables with data from multiple ConfigMaps
+
+* multiple_configmaps.yaml
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-foo-level-config
+  namespace: default
+data:
+  foo.level: 12
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-foo-file-config
+  namespace: default
+data:
+  foo.file: /etc/special-foo-file-config
+```
+
+Then create a ConfigMap from it.
+
+```
+$ kubectl create -f multiple_configmaps.yaml
+```
+
+Define environment variables.
+
+* pod-multiple-configmap-env-variable.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: special-foo-multiple-configmaps-pod
+spec:
+  containers:
+    - name: special-foo-multiple-configmaps-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "env"]
+      env:
+        - name: SPECIAL_FOO_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: special-foo-level-config
+              key: foo.level
+        - name: SPECIAL_FOO_FILE
+          valueFrom:
+            configMapKeyRef:
+              name: special-foo-file-config
+              key: foo.file
+  restartPolicy: Never
+```
+
+Create the Pod.
+
+```
+$ kubectl create -f pod-multiple-configmap-env-variable.yaml
 ```
 
 # Reference
