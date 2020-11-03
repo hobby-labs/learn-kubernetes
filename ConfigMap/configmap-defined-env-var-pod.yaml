@@ -4,18 +4,18 @@ metadata:
   name: configmap-defined-env-var-pod
 spec:
   containers:
-    - name: configmap-defined-env_-var-container
+    - name: configmap-defined-env-var-container
       image: k8s.gcr.io/busybox
-      command: ["/bin/sh", "-c", "echo $(SPECIAL_FOO_LEVAL_KEY) $(SPECIAL_FOO_FILE_KEY)"]
+      command: ["/bin/sh", "-c", "echo SPECIAL_FOO_LEVEL_KEY=$(SPECIAL_FOO_LEVEL_KEY) SPECIAL_FOO_FILE_KEY=$(SPECIAL_FOO_FILE_KEY)"]
       env:
         - name: SPECIAL_FOO_LEVEL_KEY
           valueFrom:
             configMapKeyRef:
               name: all-key-value-config
               key: SPECIAL_FOO_LEVEL
-        - name: SPECIAL_TYPE_KEY
-          valueFrom
+        - name: SPECIAL_FOO_FILE_KEY
+          valueFrom:
             configMapKeyRef:
               name: all-key-value-config
-              key: SPECIAL_FOO_LEVEL
+              key: SPECIAL_FOO_FILE
   restartPolicy: Never

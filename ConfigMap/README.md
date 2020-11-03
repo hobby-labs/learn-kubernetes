@@ -418,7 +418,7 @@ metadata:
   name: all-key-value-config
   namespace: default
 data:
-  SPECIAL_FOO_LEVAL: "13"
+  SPECIAL_FOO_LEVEL: "13"
   SPECIAL_FOO_FILE: "/etc/special_all_key_value_config.conf"
 ```
 
@@ -450,7 +450,7 @@ $ kubectl create -f pod-all-key-value-pairs.yaml
 $ kubectl logs all-key-value-pairs-pod
 ...
 SPECIAL_FOO_FILE=/etc/special_all_key_value_config.conf
-SPECIAL_FOO_LEVAL=13
+SPECIAL_FOO_LEVEL=13
 ...
 ```
 
