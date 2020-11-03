@@ -485,7 +485,39 @@ spec:
 
 ```
 $ kubectl create -f configmap-defined-env-var-pod.yaml
+$ kubectl logs configmap-defined-env-var-pod
 ```
+
+## Populate a Volume with data stored in a ConfigMap
+
+* populate-volume-with-data-stored-in-a-configmap.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: populate-volume-with-data-stored-in-a-configmap-pod
+spec:
+  containers:
+    - name: populate-volume-with-data-stored-in-a-configmap-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "ls /etc/config/"]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: all-key-value-config
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f populate-volume-with-data-stored-in-a-configmap.yaml
+$ kubectl logs populate-volume-with-data-stored-in-a-configmap-pod
+```
+
+If a directory `/etc/config` is already exists on the container, it will be removed.
+Change the command in `populate-volume-with-data-stored-in-a-configmap.yaml` then create and see logs, you can see the value of the values.
 
 # Reference
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
