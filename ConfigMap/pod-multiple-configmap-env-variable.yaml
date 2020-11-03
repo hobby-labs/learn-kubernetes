@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: special-foo-multiple-configmaps-pod
+spec:
+  containers:
+    - name: special-foo-multiple-configmaps-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "env"]
+      env:
+        - name: SPECIAL_FOO_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: special-foo-level-config
+              key: foo.level
+        - name: SPECIAL_FOO_FILE
+          valueFrom:
+            configMapKeyRef:
+              name: special-foo-file-config
+              key: foo.file
+  restartPolicy: Never
