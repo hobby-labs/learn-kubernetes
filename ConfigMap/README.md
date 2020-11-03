@@ -4,12 +4,12 @@
 Create property files.
 
 ```
-$ mkdir conf
+$ mkdir someconf
 $ cat << EOF > conf/bar.properties
 bar.level=2
 bar.file=/etc/bar.conf
 EOF
-$ cat << EOF > conf/foo.properties
+$ cat << EOF > someconf/foo.properties
 foo.level=1
 foo.file=/etc/foo.conf
 EOF
@@ -18,7 +18,7 @@ EOF
 Create config map.
 
 ```
-$ kubectl create configmap some-config --from-file=conf
+$ kubectl create configmap some-config --from-file=someconf
 configmap/some-config created
 ```
 
@@ -82,15 +82,14 @@ metadata:
 You can create a config map from one file.
 
 ```
-$ kubectl create configmap foo-config --from-file=conf/foo.properties
+$ kubectl create configmap foo-config --from-file=someconf/foo.properties
 $ kubectl describe configmaps foo-config
-
 ```
 
 You can also create a config map from multiple file by specifying them with using --from-file option multi times.
 
 ```
-$ kubectl create configmap foo-bar-config --from-file=conf/foo.properties --from-file=conf/bar.properties
+$ kubectl create configmap foo-bar-config --from-file=someconf/foo.properties --from-file=someconf/bar.properties
 $ kubectl describe configmaps foo-bar-config
 ```
 
@@ -106,7 +105,7 @@ foo.file=/etc/foo.conf
 Apply config with the option `--from-env-file`.
 
 ```
-$ kubectl create configmap foo-env --from-env-file=conf/foo.properties
+$ kubectl create configmap foo-env --from-env-file=someconf/foo.properties
 $ kubectl get configmap foo-env -o yaml
 apiVersion: v1
 data:
@@ -152,7 +151,7 @@ data:
 You can specify multiple files but not specify directory.
 
 ```
-$ kubectl create configmap some-env --from-env-file=conf/foo.properties --from-env-file=conf/foo.properties
+$ kubectl create configmap some-env --from-env-file=someconf/foo.properties --from-env-file=someconf/foo.properties
 ```
 
 This variable will be loaded as environment variables on the Pod.
@@ -167,7 +166,7 @@ foo.file=/etc/foo.conf
 ```
 
 ```
-$ kubectl create configmap foo-key-config --from-file=foo-key.properties=conf/foo.properties
+$ kubectl create configmap foo-key-config --from-file=foo-key.properties=someconf/foo.properties
 $ kybectl get configmap foo-key-config -o yaml
 apiVersion: v1
 data:
@@ -197,7 +196,7 @@ metadata:
 You can also specify multi files like below but not directory.
 
 ```
-$ kubectl create configmap foo-bar-key-config --from-file=foo-key.properties=conf/foo.properties --from-file=bar-key.properties=conf/bar.properties
+$ kubectl create configmap foo-bar-key-config --from-file=foo-key.properties=someconf/foo.properties --from-file=bar-key.properties=someconf/bar.properties
 ```
 
 ## Create ConfigMaps from literal values
@@ -255,7 +254,7 @@ $ cat << EOF > ./kustomization.yaml
 configMapGenerator:
 - name: foo-generator-key-config
   files:
-  - foo-generator-key=conf/foo.properties
+  - foo-generator-key=someconf/foo.properties
 EOF
 ```
 
