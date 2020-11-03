@@ -455,7 +455,37 @@ SPECIAL_FOO_LEVAL=13
 ```
 
 ## Use ConfigMap-defined environment variables in Pod commands
-TODO:
+
+We can use ConfigMap-defined environment variable `$(VAR_NAME)` in `command` section.
+
+* configmap-defined-env-var-pod.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-defined-env-var-pod
+spec:
+  containers:
+    - name: configmap-defined-env-var-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "echo SPECIAL_FOO_LEVEL_KEY=$(SPECIAL_FOO_LEVEL_KEY) SPECIAL_FOO_FILE_KEY=$(SPECIAL_FOO_FILE_KEY)"]
+      env:
+        - name: SPECIAL_FOO_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: all-key-value-config
+              key: SPECIAL_FOO_LEVEL
+        - name: SPECIAL_FOO_FILE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: all-key-value-config
+              key: SPECIAL_FOO_FILE
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f configmap-defined-env-var-pod.yaml
+```
 
 # Reference
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
