@@ -514,10 +514,65 @@ spec:
 ```
 $ kubectl create -f populate-volume-with-data-stored-in-a-configmap.yaml
 $ kubectl logs populate-volume-with-data-stored-in-a-configmap-pod
+SPECIAL_FOO_LEVEL
+SPECIAL_FOO_FILE
 ```
 
 If a directory `/etc/config` is already exists on the container, it will be removed.
 Change the command in `populate-volume-with-data-stored-in-a-configmap.yaml` then create and see logs, you can see the value of the values.
+
+## Add ConfigMap data to a specific path in the Volume
+
+* add-configmap-data-to-a-specific-path.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: add-configmap-data-to-a-specific-path-pod
+spec:
+  containers:
+    - name: add-configmap-data-to-a-specific-path-container
+      image: k8s.gcr.io/busybox
+      command: ["/bin/sh", "-c", "cat /etc/config/keys"]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: all-key-value-config
+        items:
+          - key: SPECIAL_FOO_LEVEL
+            path: keys
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f add-configmap-data-to-a-specific-path.yaml
+$ kubectl logs add-configmap-data-to-a-specific-path-pod
+```
+
+You CAN NOT declare multi items as a same key at one time like below.
+It will only apply `SPECIAL_FOO_FILE`.
+
+```
+...
+  volumes:
+    - name: config-volume
+      configMap:
+        items:
+          - key: SPECIAL_FOO_LEVEL
+            path: keys
+          - key: SPECIAL_FOO_FILE
+            path: keys
+...
+```
+
+### Other features
+* Mounted ConfigMaps are updated automatically if its ConfigMap was updated
+* kubelet monitors every 1 minutes (by default) to update it
+* ConfigMap as a subPath volume will not receive ConfigMap updates.
+
 
 # Reference
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
