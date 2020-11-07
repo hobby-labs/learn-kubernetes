@@ -88,6 +88,8 @@ $ kubectl delete secret dev-db-secret
 
 # Use the Default Service Account to access the API server
 
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+
 ## Auto mounting
 
 In version 1.6+ you can oput out of automounting API by setting `automountServiceAccountToken: false`
@@ -117,7 +119,82 @@ The pod spec takes precedence over the service account if both specify a `automo
 
 ## Use Multiple Service Accounts
 
+Every namespace has a default service account resource called `default`.
 
+```
+$ kubectl get serviceaccounts
+NAME      SECRETS   AGE
+default   1         42d
+```
+
+You can create additional Serviceaccount objects.
+The name of a ServiceAccount
+
+```
+$ kubectl apply -f - << EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: build-robot
+EOF
+```
+
+```
+$ kubectl get serviceaccounts/build-robot -o yaml
+  ......
+  name: build-robot
+  namespace: default
+  resourceVersion: "2374275"
+  selfLink: /api/v1/namespaces/default/serviceaccounts/build-robot
+  uid: e87c6902-e2e2-4730-a94f-b2e9503343ce
+secrets:
+- name: build-robot-token-h8mp8
+```
+
+You can see the token(secrets) that has automatically been created.
+
+To use a non-default service accunt on the Pod, you can specify it with `spec.serviceAccountName` filed in the manifest of the Pod.
+
+## Delete ServiceAccount
+
+```
+$ kubectl delete serviceaccount/build-robot
+```
+
+## Manually create a service account API token
+
+You can create secret and specify its name.
+
+```
+$ kubectl apply -f - << EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: build-robot-secret
+  annotations:
+    kubernetes.io/service-account.name: build-robot
+type: kubernetes.io/service-account-token
+EOF
+```
+
+This command create secret on the service-account `build-robot`.
+
+```
+$ kubectl describe secrets/build-robot-secret
+Name:         build-robot-secret
+Namespace:    default
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: build-robot
+              kubernetes.io/service-account.uid: 25a38222-3f8d-415c-9429-ffccd8c1ea35
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1066 bytes
+namespace:  7 bytes
+token:      eyJhbGc......
+```
 
 
 # Reference
