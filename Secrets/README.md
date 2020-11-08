@@ -196,7 +196,139 @@ namespace:  7 bytes
 token:      eyJhbGc......
 ```
 
+# Add ImagePullSecrets to a service account
+
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-imagepullsecrets-to-a-service-account
+
+## Create an imagePullSecret
+
+```
+$ kubectl create secret docker-registry myregistrykey --docker-server=DUMMY_SERVER \
+    --docker-username=dummy_username --docker-password=dummy_docker_secret --docker-email=dummy_docker_email
+secret/myregistrykey created
+```
+
+```
+$ kubectl get secrets myregistrykey
+NAME            TYPE                             DATA   AGE
+myregistrykey   kubernetes.io/dockerconfigjson   1      15m
+
+```
+
+## Add image pull secret to service account
+
+```
+$ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "myregistrykey"}]}'
+```
+
+## Add image pull secret to service account with `kubectl edit` or yaml
+
+You can add image pull secret to service account by `kubectl edit` or yaml instead.
+If you will add it from yaml, you can do like below.
+
+```
+$ kubectl get serviceaccounts default -o yaml > ./sa.yaml
+$ vim sa.yaml
+```
+
+```
+apiVersion: v1
+imagePullSecrets:
+- name: myregistrykey
+kind: ServiceAccount
+metadata:
+  creationTimestamp: "2020-09-26T11:09:08Z"
+  name: default
+  namespace: default
+  resourceVersion: "2572666"
+  selfLink: /api/v1/namespaces/default/serviceaccounts/default
+  uid: 796bdaa7-fbfc-4fc4-b02b-70a201f4336e
+secrets:
+- name: default-token-5p6x2
+```
+
+delete line with key `resourceVersion`, add lines with `imagePullSecrets:` and save
+
+```
+ apiVersion: v1
+ imagePullSecrets:
+ - name: myregistrykey
+ kind: ServiceAccount
+ metadata:
+   creationTimestamp: "2020-09-26T11:09:08Z"
+   name: default
+   namespace: default
+-  resourceVersion: "2572666"
+   selfLink: /api/v1/namespaces/default/serviceaccounts/default
+   uid: 796bdaa7-fbfc-4fc4-b02b-70a201f4336e
+ secrets:
+ - name: default-token-5p6x2
++imagePullSecrets:
++- name: myregistrykey
+```
+
+```
+$ kubectl replace serviceaccount default -f ./sa.yaml
+serviceaccount/default replaced
+```
+
+## Verify image Pull
+Verify imagePullSecrets was added to pod spec.
+
+```
+$ kubectl run nginx --image=nginx --restart=Never
+$ kubectl get pod nginx -o=jsonpath='{.spec.imagePullSecrets[0].name}{"\n"}'
+myregistrykey
+```
+
+## About imagePullSecrets
+https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+
+## Service Account Token Volume Projection(Kubernetes v1.12 [beta])
+The kubelet can also project a service account token into a Pod.
+
+* pod-projected-svc-token.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    volumeMounts:
+    - mountPath: /var/run/secrets/tokens
+      name: vault-token
+  serviceAccountName: build-robot
+  volumes:
+  - name: vault-token
+    projected:
+      sources:
+      - serviceAccountToken:
+          path: vault-token
+          expirationSeconds: 7200
+          audience: vault
+```
+
+```
+$ kubectl create -f ./pod-projected-svc-token.yaml
+```
+
+## Service Account Issuer Discovery(Kubernetes v1.18 [alpha])
+The Service Account Issuer Discovery feature is enabled by enabling the `ServiceAccountIssuerDiscovery`.
+
+See  
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#service-account-issuer-discovery
+
+# Creating a Secret
+
+https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret
+
+## 
 
 # Reference
+* Secrets
 https://kubernetes.io/docs/concepts/configuration/secret/
+* Managing Secret using kubectl
 https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kubectl/
