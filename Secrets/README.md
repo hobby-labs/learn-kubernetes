@@ -325,7 +325,72 @@ https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-accou
 
 https://kubernetes.io/docs/concepts/configuration/secret/#creating-a-secret
 
-## 
+## Editing a Secret
+
+```
+$ kubectl edit secrets mysecret
+
+apiVersion: v1
+data:
+  PASSWORD: MWYyZDFlMmU2N2Rm
+  USER_NAME: YWRtaW4=
+kind: Secret
+metadata:
+  annotations:
+  ¦ kubectl.kubernetes.io/last-applied-configuration: |
+  ¦ ¦ {"apiVersion":"v1","data":{"PASSWORD":"MWYyZDFlMmU2N2Rm","USER_NAME":"YWRtaW4="},"kind":"Secret","metadata":{"annotations":{},"name":"mysecret","namespace":"default"},"type":"Opaque"}
+  creationTimestamp: "2020-10-06T14:52:20Z"
+  name: mysecret
+  namespace: default
+  resourceVersion: "921708"
+  selfLink: /api/v1/namespaces/default/secrets/mysecret
+  uid: 0b174116-ec61-440a-a4c6-b2fc0f0188c8
+type: Opaque
+```
+
+You can see base64 encoded Secret values in the `data` field.
+
+## Using Secrets
+
+Secrets can be mounted as data volumes or exposed as environment variables to be used by a container.
+
+TODO: Explanation
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+```
+
+If there are multiple containers in the Pod, then each container needs its own `volumeMounts` block, but only one `.spec.volumes` is needed per Secret.
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+    mountPath: "/etc/foo"
+    readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+```
 
 # Reference
 * Secrets
