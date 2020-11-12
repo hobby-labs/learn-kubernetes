@@ -354,8 +354,6 @@ You can see base64 encoded Secret values in the `data` field.
 
 Secrets can be mounted as data volumes or exposed as environment variables to be used by a container.
 
-TODO: Explanation
-
 ```
 apiVersion: v1
 kind: Pod
@@ -369,6 +367,10 @@ spec:
     - name: foo
       mountPath: "/etc/foo"
       readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
 ```
 
 If there are multiple containers in the Pod, then each container needs its own `volumeMounts` block, but only one `.spec.volumes` is needed per Secret.
@@ -418,6 +420,55 @@ spec:
 
 * `username` secret is stored under `/etc/foo/my-group/my-username` field instead of `/etc/foo/username`
 * `password` secret is not projected
+
+If `.spec.volumes[].secret.items` is used, only keys specified in `items` are projected.
+
+## Secret files permissions
+If you don't specify any permissions, `0644` is used by default.
+You can also set a default mode for the entire Secret volume and override per key if needed.
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      defaultMode: 0400
+```
+
+You can also use mapping, sa in the previous example, and specify different permissions for different files like this.
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      items:
+      - key: username
+        path: my-group/my-username
+        mode: 0777
+```
 
 # Reference
 * Secrets
