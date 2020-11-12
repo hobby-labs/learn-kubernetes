@@ -392,6 +392,33 @@ spec:
       secretName: mysecret
 ```
 
+## Projection of Secret keys to specific paths
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      items:
+      - key: username
+        path: my-group/my-username
+```
+
+* `username` secret is stored under `/etc/foo/my-group/my-username` field instead of `/etc/foo/username`
+* `password` secret is not projected
+
 # Reference
 * Secrets
 https://kubernetes.io/docs/concepts/configuration/secret/
