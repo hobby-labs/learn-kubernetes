@@ -473,8 +473,115 @@ $ kubectl exec -ti mypod -- bash -c "cd /etc/foo && ls -l \$(readlink USER_NAME)
 lrwxrwxrwx 1 root root 15 Nov 14 01:43 my-group -> ..data/my-group
 ```
 
+# Using Secrets as environment variables
+
+https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables
+
+## To use a secret in an environment variable
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-env-pod
+spec:
+  containers:
+  - name: mycontainer
+    image: redis
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: mysecret
+            key: USER_NAME
+      - name: SECRET_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mysecret
+            key: PASSWORD
+  restartPolicy: Never
+```
+
+```
+$ kubectl exec -ti secret-env-pod -- bash -c "env | grep -P '^SECRET_'"
+SECRET_USERNAME=admin
+SECRET_PASSWORD=1f2d1e2e67df
+```
+
+## Immutable Secrets
+
+Immutable Secrets are
+
+* Protects you from accidental updates that could cause applications outages
+* Improves performance of your cluster by significantly reducing load on kube-apiserver, closing watches for secrets marked as immutable
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  ...
+data:
+  ...
+immutable: true
+```
+
+## Using imagePullSecrets
+You can use an `imagePullSecrets` to pass a secret that contains a Docker (or other) image registry password to the kubelet.
+
+## Manually specifying an imagePullSecret
+
+https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+
+## Arranging for imagePullSecrets to be automatically attached
+Any Pods created with that ServiceAccount or created with that ServiceAccount by default, will get their `imagePullSecrets` field set to that of the service account.
+
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-imagepullsecrets-to-a-service-account
+
+## Automatic mounting of manually created Secrets
+
+Manyally created secrets (for example, one containing a token for accessing a GitHub account) can be automatically attached to pods based on their service account.
+
+https://kubernetes.io/docs/tasks/inject-data-application/podpreset/
+
+## Pod with ssh keys
+
+```
+$ ssh-keygen -f k8skey
+$ kubectl create secret generic ssh-key-secret --from-file=ssh-privatekey=${PWD}/k8skey --from-file=ssh-publickey=${PWD}/k8skey.pub
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-test-pod
+  labels:
+    name: secret-test
+spec:
+  volumes:
+  - name: secret-volume
+    secret:
+      secretName: ssh-key-secret
+  containers:
+  - name: ssh-test-container
+    image: k8s.gcr.io/busybox
+    command: ["ls", "-l", "/etc/secret-volume"]
+    volumeMounts:
+    - name: secret-volume
+      readOnly: true
+      mountPath: "/etc/secret-volume"
+  restartPolicy: Never
+```
+
+```
+$ kubectl logs secret-test-pod
+total 0
+lrwxrwxrwx    1 root     root            21 Nov 14 03:34 ssh-privatekey -> ..data/ssh-privatekey
+lrwxrwxrwx    1 root     root            20 Nov 14 03:34 ssh-publickey -> ..data/ssh-publickey
+```
 
 # Reference
+
 * Secrets
 https://kubernetes.io/docs/concepts/configuration/secret/
 * Managing Secret using kubectl
