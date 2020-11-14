@@ -337,8 +337,8 @@ data:
 kind: Secret
 metadata:
   annotations:
-  ¦ kubectl.kubernetes.io/last-applied-configuration: |
-  ¦ ¦ {"apiVersion":"v1","data":{"PASSWORD":"MWYyZDFlMmU2N2Rm","USER_NAME":"YWRtaW4="},"kind":"Secret","metadata":{"annotations":{},"name":"mysecret","namespace":"default"},"type":"Opaque"}
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"PASSWORD":"MWYyZDFlMmU2N2Rm","USER_NAME":"YWRtaW4="},"kind":"Secret","metadata":{"annotations":{},"name":"mysecret","namespace":"default"},"type":"Opaque"}
   creationTimestamp: "2020-10-06T14:52:20Z"
   name: mysecret
   namespace: default
@@ -373,26 +373,14 @@ spec:
       secretName: mysecret
 ```
 
-If there are multiple containers in the Pod, then each container needs its own `volumeMounts` block, but only one `.spec.volumes` is needed per Secret.
+```
+$ kubectl exec -ti mypod -- ls -l /etc/foo
+total 0
+lrwxrwxrwx 1 root root 15 Nov 12 15:56 PASSWORD -> ..data/PASSWORD
+lrwxrwxrwx 1 root root 16 Nov 12 15:56 USER_NAME -> ..data/USER_NAME
+```
 
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: mypod
-spec:
-  containers:
-  - name: mypod
-    image: redis
-    volumeMounts:
-    - name: foo
-    mountPath: "/etc/foo"
-    readOnly: true
-  volumes:
-  - name: foo
-    secret:
-      secretName: mysecret
-```
+If there are multiple containers in the Pod, then each container needs its own `volumeMounts` block, but only one `.spec.volumes` is needed per Secret.
 
 ## Projection of Secret keys to specific paths
 
@@ -414,8 +402,13 @@ spec:
     secret:
       secretName: mysecret
       items:
-      - key: username
+      - key: USER_NAME
         path: my-group/my-username
+```
+
+```
+$ kubectl exec -ti mypod -- ls -l /etc/foo/my-group/my-username
+-rw-r--r-- 1 root root 5 Nov 14 01:29 /etc/foo/my-group/my-username
 ```
 
 * `username` secret is stored under `/etc/foo/my-group/my-username` field instead of `/etc/foo/username`
@@ -446,6 +439,11 @@ spec:
       defaultMode: 0400
 ```
 
+```
+$ kubectl exec -ti mypod -- bash -c "cd /etc/foo && ls -l \$(readlink USER_NAME)"
+-r-------- 1 root root 5 Nov 14 01:37 ..data/USER_NAME
+```
+
 You can also use mapping, sa in the previous example, and specify different permissions for different files like this.
 
 ```
@@ -465,10 +463,16 @@ spec:
     secret:
       secretName: mysecret
       items:
-      - key: username
+      - key: USER_NAME
         path: my-group/my-username
         mode: 0777
 ```
+
+```
+$ kubectl exec -ti mypod -- bash -c "cd /etc/foo && ls -l \$(readlink USER_NAME)"
+lrwxrwxrwx 1 root root 15 Nov 14 01:43 my-group -> ..data/my-group
+```
+
 
 # Reference
 * Secrets
