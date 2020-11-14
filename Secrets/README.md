@@ -580,6 +580,15 @@ lrwxrwxrwx    1 root     root            21 Nov 14 03:34 ssh-privatekey -> ..dat
 lrwxrwxrwx    1 root     root            20 Nov 14 03:34 ssh-publickey -> ..data/ssh-publickey
 ```
 
+## Pods with prod / test credentials
+
+```
+$ kubectl create secret generic prod-db-secret --from-literal=username=produser --from-literal=password=prod-secret
+$ kubectl create secret generic test-db-secret --from-literal=username=testuser --from-literal=password=test-secret
+```
+
+
+
 # Reference
 
 * Secrets
