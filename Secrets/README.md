@@ -587,6 +587,72 @@ $ kubectl create secret generic prod-db-secret --from-literal=username=produser 
 $ kubectl create secret generic test-db-secret --from-literal=username=testuser --from-literal=password=test-secret
 ```
 
+```
+apiVersion: v1
+kind: List
+items:
+- kind: Pod
+  apiVersion: v1
+  metadata:
+    name: prod-db-client-pod
+    labels:
+      name: prod-db-client
+  spec:
+    volumes:
+    - name: secret-volume
+      secret:
+        secretName: prod-db-secret
+    containers:
+    - name: db-client-container
+      image: k8s.gcr.io/busybox
+      command: ["tail", "-f", "/dev/null"]
+      volumeMounts:
+      - name: secret-volume
+        readOnly: true
+        mountPath: "/etc/secret-volume"
+- kind: Pod
+  apiVersion: v1
+  metadata:
+    name: test-db-client-pod
+    labels:
+      name: test-db-client-pod
+  spec:
+    volumes:
+    - name: secret-volume
+      secret:
+        secretName: test-db-secret
+    containers:
+    - name: db-client-container
+      image: k8s.gcr.io/busybox
+      command: ["tail", "-f", "/dev/null"]
+      volumeMounts:
+      - name: secret-volume
+        readOnly: true
+        mountPath: "/etc/secret-volume"
+
+```
+
+```
+$ kubectl exec -ti prod-db-client-pod -- sh -c "cd /etc/secret-volume; ls -l; cat username; echo; cat password"
+$ kubectl exec -ti test-db-client-pod -- sh -c "cd /etc/secret-volume; ls -l; cat username; echo; cat password"
+```
+
+You could further simplify the base Pod specification by using two service accounts
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prod-db-client-pod
+  labels:
+    name: prod-db-client
+spec:
+  serviceAccount: prod-db-client
+  containers:
+  - name: db-client-container
+    image: k8s.gcr.io/busybox
+```
+
 
 
 # Reference
