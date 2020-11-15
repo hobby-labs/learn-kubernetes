@@ -108,14 +108,31 @@ You can also mount API credentials for a particular podl
 apiVersion: v1
 kind: Pod
 metadata:
-  name: my-pod
+  name: service-account-test
 spec:
-  serviceAccountName: build-robot
+  containers:
+  - image: k8s.gcr.io/busybox
+    name: service-account-test
+    command: ["tail", "-f", "/dev/null"]
   automountServiceAccountToken: false
-  ...
 ```
 
 The pod spec takes precedence over the service account if both specify a `automountServiceAccountToken` value.
+
+```
+$ kubectl exec -ti service-account-test -- ls -l /var/run/secrets
+ls: /var/run/secrets: No such file or directory
+command terminated with exit code 1
+```
+
+If you did not specify `automountServiceAccountToken: false`, you can see the directory mounted automatically.
+
+```
+$ kubectl exec -ti service-account-test -- ls -l /var/run/secrets/kubernetes.io/serviceaccount
+lrwxrwxrwx    1 root     root            13 Nov 15 04:23 ca.crt -> ..data/ca.crt
+lrwxrwxrwx    1 root     root            16 Nov 15 04:23 namespace -> ..data/namespace
+lrwxrwxrwx    1 root     root            12 Nov 15 04:23 token -> ..data/token
+```
 
 ## Use Multiple Service Accounts
 
