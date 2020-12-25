@@ -21,6 +21,18 @@ secret.code.lives=30
 
 ```
 $ kubectl create configmap game-config-3 --from-file=game-special-key=configmap/game.properties
+apiVersion: v1
+data:
+  game-special-key: |
+    enemies=aliens
+    lives=3
+    enemies.cheat=true
+    enemies.cheat.level=noGoodRotten
+    secret.code.passphrase=UUDDLRLRBABAS
+    secret.code.allowed=true
+    secret.code.lives=30
+kind: ConfigMap
+......
 ```
 
 # Reference
