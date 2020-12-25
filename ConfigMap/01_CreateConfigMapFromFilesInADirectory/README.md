@@ -1,4 +1,4 @@
-# Create ConfigMap from file
+# Create ConfigMap from files in a directory
 
 * configmap/game.properties
 ```
@@ -95,4 +95,6 @@ metadata:
   uid: 20ba9ee7-0010-4a65-aab8-5f588752c061
 ```
 
+# Reference
+https://kubernetes.io/docs/concepts/configuration/configmap/
 
