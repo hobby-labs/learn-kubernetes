@@ -21,6 +21,7 @@ secret.code.lives=30
 
 ```
 $ kubectl create configmap game-config-3 --from-file=game-special-key=configmap/game.properties
+$ kubectl get configmap game-config-3 -o yaml
 apiVersion: v1
 data:
   game-special-key: |
