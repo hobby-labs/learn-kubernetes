@@ -1,13 +1,3 @@
-# Devine ConfigMap as environment variables to the container
-
-```
-$ kubectl create configmap special-config-08 --from-literal=special.how=very
-```
-
-Assign the special.how value defined in the ConfigMap to the `SPECIAL_LEVEL_KEY` environment variable in the Pod specification.
-
-* pod-single-configmap-env-variable.yaml
-```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -27,16 +17,3 @@ spec:
               # Specify the key associated with the value
               key: special.how
   restartPolicy: Never
-```
-
-```
-$ kubectl create -f pod-single-configmap-env-variable.yaml
-$ kubectl logs dapi-test-pod-08
-...
-SPECIAL_LEVEL_KEY=very
-...
-```
-
-# Reference
-https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
-
