@@ -45,7 +45,11 @@ spec:
           configMapKeyRef:
             name: env-config
             key: log_level
-  restartPolich: Never
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f pod-multiple-configmap-env-variable.yaml
 ```
 
 # Reference
