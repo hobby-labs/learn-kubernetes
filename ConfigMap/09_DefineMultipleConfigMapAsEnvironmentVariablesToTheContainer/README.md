@@ -13,7 +13,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: env-config
+  name: env-config-09
   namespace: default
 data:
   log_level: INFO
@@ -43,13 +43,19 @@ spec:
       - name: LOG_LEVEL
         valueFrom:
           configMapKeyRef:
-            name: env-config
+            name: env-config-09
             key: log_level
   restartPolicy: Never
 ```
 
 ```
 $ kubectl create -f pod-multiple-configmap-env-variable.yaml
+$ kubectl logs dapi-test-pod-09
+...
+LOG_LEVEL=INFO
+...
+SPECIAL_LEVEL_KEY=very
+...
 ```
 
 # Reference
