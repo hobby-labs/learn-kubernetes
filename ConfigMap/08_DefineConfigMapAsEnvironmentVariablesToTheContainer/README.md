@@ -24,15 +24,19 @@ spec:
         - name: SPECIAL_LEVEL_KEY
           valueFrom:
             configMapKeyRef:
-            # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
-            name: special-config
-            # Specify the key associated with the value
-            key: special.how
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: special-config
+              # Specify the key associated with the value
+              key: special.how
   restartPolicy: Never
 ```
 
 ```
-$ kube
+$ kubectl create -f pod-single-configmap-env-variable.yaml
+$ kubectl logs dapi-test-pod
+...
+SPECIAL_LEVEL_KEY=very
+...
 ```
 
 # Reference
