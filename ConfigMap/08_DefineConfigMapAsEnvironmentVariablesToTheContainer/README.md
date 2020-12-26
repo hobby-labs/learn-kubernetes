@@ -8,7 +8,6 @@ $ kubectl create configmap special-config --from-literal=special.how=very
 Assign the special.how value defined in the ConfigMap to the `SPECIAL_LEVEL_KEY` environment variable in the Pod specification.
 
 * pod-single-configmap-env-variable.yaml
-
 ```
 apiVersion: v1
 kind: Pod
