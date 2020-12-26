@@ -21,5 +21,10 @@ secret.code.lives=30
 
 ```
 $ kubectl apply -k .
+$ kubectl get configmap
+NAME                       DATA   AGE
+...
+game-config-4-k87d9g8m72   1      7s
+...
 ```
 
