@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: all-key-value-config
-  namespace: default
-data:
-  SPECIAL_FOO_LEVEL: "13"
-  SPECIAL_FOO_FILE: "/etc/special_all_key_value_config.conf"
