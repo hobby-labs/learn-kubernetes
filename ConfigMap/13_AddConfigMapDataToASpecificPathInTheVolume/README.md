@@ -1,5 +1,6 @@
 # Add ConfigMap data to a specific path in the Volume
 
+* configmap/configmap-multikeys.yaml
 ```
 apiVersion: v1
 kind: ConfigMap
@@ -12,17 +13,37 @@ data:
 ```
 
 ```
+$ kubectl create -f configmap/configmap-multikeys.yaml
+```
+
+* pod-configmap-volume-specific-key.yaml
+```
 apiVersion: v1
 kind: Pod
 metadata:
-  name: dapi-test-pod
+  name: dapi-test-pod-13
 spec:
   containers:
     - name: test-container
       image: k8s.gcr.io/busybox
       command: ["/bin/sh", "-c", "cat /etc/config/keys"]
       volumeMounts:
-      - name: config-volume-13
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: special-config-13
+        items:
+        - key: SPECIAL_LEVEL
+          path: keys
+  restartPolicy: Never
+```
+
+```
+$ kubectl create -f pod-configmap-volume-specific-key.yaml
+$ kubectl logs dapi-test-pod-13
+very
 ```
 
 # Reference
