@@ -39,7 +39,7 @@ spec:
   - name: test-hostpath-type-directory-on-host
     hostPath:
       # Directory location on host
-      path: /test-hostpath-type-directory-on-host
+      path: /var/tmp/test-hostpath-type-directory-on-host
       # This field is optional
       type: Directory
 ```
@@ -62,7 +62,7 @@ This instruction has failed because the directory `/test-hostpath-type-directory
 Create it on each host in the kubernetes cluster.
 
 ```
-$ mkdir /test-hostpath-type-directory-on-host
+$ mkdir /var/tmp/test-hostpath-type-directory-on-host
 $ echo "This is a directory on ${HOST}" > /test-hostpath-type-directory-on-host/hostname.txt
 $ cat /test-hostpath-type-directory-on-host/hostname.txt
 This is a directory on <hostname>
@@ -81,6 +81,54 @@ $ kubectl exec -ti test-hostpath-type-directory sh
 -rw-r--r--    1 root     root            29 Dec 28 12:41 hostname.txt
 # cat /test-hostpath-type-directory-on-container/hostname.txt
 This is a directory on <hostname>  # <- This output shows that which host this pod is running on
+```
+
+## Type FileOrCreate configuration
+
+* hostpath-type-file-or-create.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-hostpath-type-file-or-create
+spec:
+  containers:
+  - image: k8s.gcr.io/busybox
+    name: test-container
+    command: ["/bin/sh", "-c", "tail -f /dev/null"]
+    volumeMounts:
+    # Directory location on container
+    - mountPath: /test-hostpath-type-file-or-create
+      name: mydir
+    - mountPath: /test-hostpath-type-file-or-create/test.txt
+      name: myfile
+  volumes:
+  - name: mydir
+    hostPath:
+      # Ensure the file directory is created
+      path: /var/tmp/test-hostpath-type-file-or-create
+      type: DirectoryOrCreate
+  - name: myfile
+    hostPath:
+      # This instruction will be failed if you specify a file that is in the non-existence directory.
+      # For example /var/tmp/test-hostpath-type-file-or-create2/test.txt
+      path: /var/tmp/test-hostpath-type-file-or-create/test.txt
+      type: FileOrCreate
+```
+
+```
+$ kubectl apply -f hostpath-type-file-or-create.yaml
+$ kubectl exec -ti test-hostpath-type-file-or-create -- ls -l /test-hostpath-type-file-or-create
+total 0
+-rw-r--r--    1 root     root             0 Dec 28 13:50 test.txt
+```
+
+The directory mounted from the container will be shown one host in the kubernetes cluster.
+
+```
+$ ls -l /var/tmp/test-hostpath-type-file-or-create
+total 0
+-rw-r--r-- 1 root root 0 Dec 28 13:50 test.txt
 ```
 
 # Reference
