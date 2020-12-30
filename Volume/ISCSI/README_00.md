@@ -153,7 +153,6 @@ sdb                         8:16   0     1G  0 disk
 ...
 ```
 
-
 # Reference
 https://linuxhint.com/iscsi_storage_server_ubuntu/
 https://github.com/kubernetes/examples/tree/master/volumes/iscsi
