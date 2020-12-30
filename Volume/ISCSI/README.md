@@ -1,8 +1,5 @@
 # ISCSI
 
-## Install initiator on Ubuntu 20.04
-
-
 ## Create ISCSI client(initiator) on Ubuntu 20.04
 
 The ISCSI Server(initiator)
@@ -16,9 +13,9 @@ The ISCSI Server(initiator)
 
 * /etc/tgt/conf.d/host01.localdomain.disk01.conf
 ```
-<target host01.localdomain:disk01>
+<target iqn.2020-12.com.example.dnuc01:disk01>
   backing-store /var/iscsi/blocks/disk01.img
-  initiator-name host01.localdomain:initiator01
+  initiator-name iqn.2020-12.com.example.dnuc01:initiator01
   incominguser initiator secret
 </target>
 ```
@@ -27,17 +24,88 @@ If you want to publish a device or partition (not sparse file), you can specify 
 
 * /etc/tgt/conf.d/host01.localdomain.disk01.conf
 ```
-<target host01.localdomain:disk01>
+<target iqn.2020-12.com.example.dnuc01:sdb>
   backing-store /dev/sdb
-  initiator-name host01.localdomain:initiator01
+  initiator-name iqn.2020-12.com.example.foo:initiator01
   incominguser initiator secret
 </target>
 ```
+
+// Initiator name should be `iqn.YYYY-MM.<reverse-domain-name>:<initiator-name>`
 
 Restart tgt.
 
 ```
 # systemctl restart tgt
+```
+
+## Install server(target) on Ubuntu 20.04
+
+```
+# apt update
+# apt install -y open-iscsi
+# systemctl enable iscsid
+```
+
+* /etc/iscsi/initiatorname.iscsi
+```
+InitiatorName=iqn.2020-12.com.example.dnuc01:initiator01
+```
+
+* /etc/iscsi/iscsid.conf (diff)
+```
+@@ -38,10 +38,10 @@
+ #*****************
+
+ # To request that the iscsi initd scripts startup a session set to "automatic".
+-# node.startup = automatic
++node.startup = automatic
+ #
+ # To manually startup the session set to "manual". The default is manual.
+-node.startup = manual
++# node.startup = manual
+
+ # For "automatic" startup nodes, setting this to "Yes" will try logins on each
+ # available iface until one succeeds, and then stop.  The default "No" will try
+@@ -58,8 +58,8 @@
+
+ # To set a CHAP username and password for initiator
+ # authentication by the target(s), uncomment the following lines:
+-#node.session.auth.username = username
+-#node.session.auth.password = password
++node.session.auth.username = initiator
++node.session.auth.password = secret
+
+ # To set a CHAP username and password for target(s)
+ # authentication by the initiator, uncomment the following lines:
+```
+
+Discover device and 
+
+```
+# iscsiadm -m discovery -t sendtargets -p 192.168.1.31
+192.168.1.31:3260,1 iqn.2020-12.com.example.dnuc01:disk01
+
+# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.dnuc01:disk01 --login
+Logging in to [iface: default, target: iqn.2020-12.com.example.dnuc01:disk01, portal: 192.168.1.31,3260] (multiple)
+Login to [iface: default, target: iqn.2020-12.com.example.dnuc01:disk01, portal: 192.168.1.31,3260] successful.
+
+# # You can also login to all the available targets with the following command
+# iscsiadm -m node -p 192.168.1.31 --login
+...
+```
+
+Now you can see the device on you client.
+You can do anything like simple raw device
+
+```
+# dmesg | grep -P '\[sd[a-z]\]'
+[1524801.348474] sd 3:0:0:1: [sda] 2097152 512-byte logical blocks: (1.07 GB/1.00 GiB)
+[1524801.348476] sd 3:0:0:1: [sda] 4096-byte physical blocks
+[1524801.348579] sd 3:0:0:1: [sda] Write Protect is off
+[1524801.348580] sd 3:0:0:1: [sda] Mode Sense: 69 00 10 08
+[1524801.348793] sd 3:0:0:1: [sda] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[1524801.393868] sd 3:0:0:1: [sda] Attached SCSI disk
 ```
 
 # Reference
