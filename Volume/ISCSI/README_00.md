@@ -108,6 +108,52 @@ You can do anything like simple raw device
 [1524801.393868] sd 3:0:0:1: [sda] Attached SCSI disk
 ```
 
+```
+# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.dnuc01:disk01 --login
+```
+
+If you want to logout
+
+```
+# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.dnuc01:disk01 --logout
+```
+
+## Specify same initiator that located in other hosts
+
+You can specify the initiator that located between other hosts.
+It will be shown from client as a mpath device.
+First, create targets that have same name of the initiator like blow.
+
+* /etc/tgt/conf.d/iqn.2020-12.com.example.iscsi-server.conf (on node01 and node02 (ISCSI servers))
+```
+<target iqn.2020-12.com.example.iscsi-server:disk01>
+  backing-store /var/iscsi/blocks/disk01.img
+  initiator-name iqn.2020-12.com.example.iscsi-server:iscsi-server
+  incominguser initiator secret
+</target>
+```
+
+* /etc/iscsi/initiatorname.iscsi
+```
+InitiatorName=iqn.2020-12.com.example.iscsi-server:iscsi-server
+```
+
+```
+client ~# iscsiadm -m discovery -t sendtargets -p 192.168.1.31
+client ~# iscsiadm -m discovery -t sendtargets -p 192.168.1.32
+client ~# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.iscsi-server:disk01 --login
+client ~# iscsiadm -m node -p 192.168.1.32 -T iqn.2020-12.com.example.iscsi-server:disk01 --login
+client ~# lsblk
+NAME                      MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
+...
+sda                         8:0    0     1G  0 disk
+└─mpatha                  253:1    0     1G  0 mpath
+sdb                         8:16   0     1G  0 disk
+└─mpatha                  253:1    0     1G  0 mpath
+...
+```
+
+
 # Reference
 https://linuxhint.com/iscsi_storage_server_ubuntu/
 https://github.com/kubernetes/examples/tree/master/volumes/iscsi
