@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iscsipd
+spec:
+  containers:
+  - name: iscsipd-rw
+    image: kubernetes/pause
+    volumeMounts:
+    - mountPath: "/mnt/iscsipd"
+      name: iscsipd-rw
+  volumes:
+  - name: iscsipd-rw
+    iscsi:
+      targetPortal: 192.168.1.31:3260
+      portals: ['192.168.1.32:3260', '192.168.1.33:3260']
+      iqn: iqn.2020-12.com.example.iscsi-server:global-initiator
+      lun: 0
+      fsType: xfs
+      readOnly: true
+      chapAuthDiscovery: true
+      chapAuthSession: true
+      secretRef:
+        name: iscsi-chap-secret
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: iscsi-chap-secret
+type: "kubernetes.io/iscsi-chap"
+data:
+  # These are test user name and password
+  discovery.sendtargets.auth.username: aW5pdGlhdG9y
+  discovery.sendtargets.auth.password: c2VjcmV0
+  #discovery.sendtargets.auth.username_in: aW5pdGlhdG9y
+  #discovery.sendtargets.auth.password_in: c2VjcmV0
+  node.session.auth.username: aW5pdGlhdG9y
+  node.session.auth.password: c2VjcmV0
+  #node.session.auth.username_in: aW5pdGlhdG9y
+  #node.session.auth.password_in: c2VjcmV0
+
