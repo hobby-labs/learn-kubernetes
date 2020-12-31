@@ -1,8 +1,8 @@
 # ISCSI
 
-## Create ISCSI client(initiator) on Ubuntu 20.04
+## Create ISCSI server(target) on Ubuntu 20.04
 
-The ISCSI Server(initiator)
+The ISCSI server(target)
 
 ```
 # apt update
@@ -80,7 +80,25 @@ InitiatorName=iqn.2020-12.com.example.dnuc01:initiator01
  # authentication by the initiator, uncomment the following lines:
 ```
 
-Discover device and 
+You can specify not to use multipath if you don't want to use it before you login.
+
+* /etc/multipath.conf
+```
+defaults {
+    user_friendly_names yes
+}
+blacklist {
+    devnode "^(ram|raw|loop|fd|md|dm-|sr|scd|st|sd[a-z])[0-9]*"
+}
+```
+
+Then restart iscsid.
+
+```
+# systemctl restart iscsid
+```
+
+Discover devices on the targets and login to them.
 
 ```
 # iscsiadm -m discovery -t sendtargets -p 192.168.1.31
@@ -141,19 +159,41 @@ InitiatorName=iqn.2020-12.com.example.iscsi-server:iscsi-server
 ```
 client ~# iscsiadm -m discovery -t sendtargets -p 192.168.1.31
 client ~# iscsiadm -m discovery -t sendtargets -p 192.168.1.32
+client ~# iscsiadm -m discovery -t sendtargets -p 192.168.1.33
 client ~# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.iscsi-server:disk01 --login
 client ~# iscsiadm -m node -p 192.168.1.32 -T iqn.2020-12.com.example.iscsi-server:disk01 --login
+client ~# iscsiadm ...
 client ~# lsblk
 NAME                      MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
 ...
 sda                         8:0    0     1G  0 disk
-└─mpatha                  253:1    0     1G  0 mpath
 sdb                         8:16   0     1G  0 disk
-└─mpatha                  253:1    0     1G  0 mpath
 ...
+```
+
+## View of mapping
+
+```
+client ~# iscsiadm -m session -P 3 | grep 'Target\|disk'
+Target: iqn.2020-12.com.example.dnuc01:dnuc01 (non-flash)
+                Target Reset Timeout: 30
+                        Attached scsi disk sda          State: running
+Target: iqn.2020-12.com.example.iscsi-server:iscsi-server (non-flash)
+                Target Reset Timeout: 30
+                        Attached scsi disk sdb          State: running
+                Target Reset Timeout: 30
+                        Attached scsi disk sde          State: running
+Target: iqn.2020-12.com.example.iscsi-server:dnuc02 (non-flash)
+                Target Reset Timeout: 30
+                        Attached scsi disk sdc          State: running
+Target: iqn.2020-12.com.example.iscsi-server:dnuc03 (non-flash)
+                Target Reset Timeout: 30
+                        Attached scsi disk sdd          State: running
 ```
 
 # Reference
 https://linuxhint.com/iscsi_storage_server_ubuntu/
+https://askubuntu.com/a/1269917
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/dm_multipath/mpio_configfile
 https://github.com/kubernetes/examples/tree/master/volumes/iscsi
 https://kubernetes.io/docs/concepts/storage/volumes/
