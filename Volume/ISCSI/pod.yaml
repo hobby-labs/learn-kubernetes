@@ -21,7 +21,7 @@ spec:
       iqn: iqn.2020-12.com.example.dnuc01:dnuc01
       initiatorName: iqn.2020-12.com.example.iscsi-server:global-initiator
       lun: 1
-      fsType: ext4
+      fsType: xfs
       readOnly: false
 #      chapAuthDiscovery: true
 #      chapAuthSession: true
