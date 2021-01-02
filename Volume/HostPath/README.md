@@ -133,3 +133,4 @@ total 0
 
 # Reference
 https://github.com/kubernetes/examples
+https://kubernetes.io/docs/concepts/storage/volumes/

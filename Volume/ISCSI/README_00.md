@@ -98,6 +98,8 @@ Then restart iscsid.
 ```
 
 Discover devices on the targets and login to them.
+Information of authorization will be updated when the discovery command was issued.
+So you have to re-run the discovery command if you changed authorization infomation on the initiator.
 
 ```
 # iscsiadm -m discovery -t sendtargets -p 192.168.1.31
