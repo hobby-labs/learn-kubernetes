@@ -103,7 +103,7 @@ Discover devices on the targets and login to them.
 # iscsiadm -m discovery -t sendtargets -p 192.168.1.31
 192.168.1.31:3260,1 iqn.2020-12.com.example.dnuc01:disk01
 
-# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.dnuc01:disk01 --login
+# iscsiadm -m node -p 192.168.1.31 -T iqn.2020-12.com.example.dnuc01:dnuc01 --login
 Logging in to [iface: default, target: iqn.2020-12.com.example.dnuc01:disk01, portal: 192.168.1.31,3260] (multiple)
 Login to [iface: default, target: iqn.2020-12.com.example.dnuc01:disk01, portal: 192.168.1.31,3260] successful.
 
