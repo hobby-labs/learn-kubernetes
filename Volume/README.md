@@ -11,6 +11,7 @@
 ## emptyDir
 
 ## hostPath
+Examples is in HostPath directory.
 
 ## local
 local storage
@@ -47,3 +48,4 @@ storageOS
 
 # Reference
 https://github.com/kubernetes/examples
+https://kubernetes.io/docs/concepts/storage/volumes/
