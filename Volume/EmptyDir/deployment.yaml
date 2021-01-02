@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-emptydir-deployment
+spec:
+  selector:
+    matchLabels:
+      app: test-emptydir-deployment
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: test-emptydir-deployment
+    spec:
+      containers:
+      - name: test-emptydir-deployment-container
+        image: ubuntu
+        command: ["/bin/sh", "-c", "tail -f /dev/null"]
+        volumeMounts:
+        - mountPath: /cache
+          name: cache-volume
+      volumes:
+      - name: cache-volume
+        emptyDir: {}
