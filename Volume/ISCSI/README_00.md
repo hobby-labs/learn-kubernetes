@@ -1,4 +1,3 @@
-# ISCSI
 
 ## Create ISCSI server(target) on Ubuntu 20.04
 
