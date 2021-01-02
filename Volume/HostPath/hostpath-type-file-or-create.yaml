@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-hostpath-type-file-or-create
+spec:
+  containers:
+  - image: k8s.gcr.io/busybox
+    name: test-container
+    command: ["/bin/sh", "-c", "tail -f /dev/null"]
+    volumeMounts:
+    # Directory location on container
+    - mountPath: /test-hostpath-type-file-or-create
+      name: mydir
+    - mountPath: /test-hostpath-type-file-or-create/test.txt
+      name: myfile
+  volumes:
+  - name: mydir
+    hostPath:
+      # Ensure the file directory is created
+      path: /var/tmp/test-hostpath-type-file-or-create
+      type: DirectoryOrCreate
+  - name: myfile
+    hostPath:
+      # This instruction will be failed if you specify a file that is in the non-existence directory.
+      # For example /var/tmp/test-hostpath-type-file-or-create2/test.txt
+      path: /var/tmp/test-hostpath-type-file-or-create/test.txt
+      type: FileOrCreate

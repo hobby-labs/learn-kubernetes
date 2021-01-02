@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-hostpath-type-directory
+spec:
+  containers:
+  - image: k8s.gcr.io/busybox
+    name: test-container
+    command: ["/bin/sh", "-c", "tail -f /dev/null"]
+    volumeMounts:
+    # Directory location on container
+    - mountPath: /test-hostpath-type-directory-on-container
+      # Name of the volume on host
+      name: test-hostpath-type-directory-on-host
+  volumes:
+  - name: test-hostpath-type-directory-on-host
+    hostPath:
+      # Directory location on host
+      path: /test-hostpath-type-directory-on-host
+      # This field is optional
+      type: Directory
+
