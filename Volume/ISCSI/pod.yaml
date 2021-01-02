@@ -6,24 +6,21 @@ metadata:
 spec:
   containers:
   - name: iscsipd-ro
-    command: ["/bin/sh", "-c", "tail -f /dev/null"]
-    #image: kubernetes/pause
     image: k8s.gcr.io/busybox
+    command: ["/bin/sh", "-c", "tail -f /dev/null"]
     volumeMounts:
     - mountPath: "/mnt"
       name: iscsivol
   volumes:
   - name: iscsivol
     iscsi:
-      #targetPortal: 127.0.0.1
       targetPortal: 192.168.1.31
-      #iqn: iqn.2020-12.com.example.iscsi-server:global-initiator
       iqn: iqn.2020-12.com.example.dnuc01:dnuc01
       initiatorName: iqn.2020-12.com.example.iscsi-server:global-initiator
       lun: 1
       fsType: xfs
       readOnly: false
-#      chapAuthDiscovery: true
-#      chapAuthSession: true
-#      secretRef:
-#         name: chap-secret
+      chapAuthDiscovery: true
+      chapAuthSession: true
+      secretRef:
+         name: chap-secret
