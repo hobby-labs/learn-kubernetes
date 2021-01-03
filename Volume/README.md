@@ -11,9 +11,13 @@
 ## emptyDir
 
 ## hostPath
+
+[comment]: # (Done)
+
 Examples is in HostPath directory.
 
 ## local
+
 local storage
 
 # Shares or Outer storage
