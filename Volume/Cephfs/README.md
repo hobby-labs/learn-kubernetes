@@ -125,6 +125,14 @@ dnuc01 ~# ceph orch host label add dnuc03 osd
 
 dnuc01 ~# # View all devices on storage nodes
 dnuc01 ~# ceph orch device ls
+
+> List the storages thet considered available if all of the following conditions are met.
+> * The device must have no partitions.
+> * The device must not have any LVM state.
+> * The device must not be mounted.
+> * The device must not contain a file system.
+> * The device must not contain a Ceph BlueStore OSD.
+> * The device must be larger than 5 GB.
 ```
 
 
