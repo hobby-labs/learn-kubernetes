@@ -105,6 +105,16 @@ dnuc01 ~# docker ps
 > ceph-bffa7f7e-4e8e-11eb-8336-91ab43728af7-mon.dnuc01
 ```
 
+## Attach new disk
+
+```
+nuc0[123] ~# qemu-img create -f qcow2 ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdb.img 5G
+nuc0[123] ~# # Add disk image as persistent volumes
+nuc0[123] ~# virsh attach-disk ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdb.img --target vdb --persistent
+```
+
+https://www.cyberciti.biz/faq/how-to-add-disk-image-to-kvm-virtual-machine-with-virsh-command/
+
 ## Deploy Ceph OSDs
 
 ```
@@ -125,7 +135,15 @@ dnuc01 ~# ceph orch host label add dnuc03 osd
 
 dnuc01 ~# # View all devices on storage nodes
 dnuc01 ~# ceph orch device ls
+Hostname  Path      Type  Serial  Size   Health   Ident  Fault  Available
+dnuc01    /dev/vdb  hdd           6442M  Unknown  N/A    N/A    Yes
+dnuc02    /dev/vdb  hdd           6442M  Unknown  N/A    N/A    Yes
+dnuc03    /dev/vdb  hdd           6442M  Unknown  N/A    N/A    Yes
+```
 
+Please check list below if you can not see the devices.
+
+```
 > List the storages thet considered available if all of the following conditions are met.
 > * The device must have no partitions.
 > * The device must not have any LVM state.
@@ -133,6 +151,13 @@ dnuc01 ~# ceph orch device ls
 > * The device must not contain a file system.
 > * The device must not contain a Ceph BlueStore OSD.
 > * The device must be larger than 5 GB.
+```
+
+```
+dnuc01 ~# # Tell Ceph to consume any available and unused storage device
+dnuc01 ~# ceph orch daemon add osd dnuc01:/dev/vdb
+dnuc01 ~# ceph orch daemon add osd dnuc02:/dev/vdb
+dnuc01 ~# ceph orch daemon add osd dnuc03:/dev/vdb
 ```
 
 
