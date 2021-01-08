@@ -158,9 +158,33 @@ dnuc01 ~# # Tell Ceph to consume any available and unused storage device
 dnuc01 ~# ceph orch daemon add osd dnuc01:/dev/vdb
 dnuc01 ~# ceph orch daemon add osd dnuc02:/dev/vdb
 dnuc01 ~# ceph orch daemon add osd dnuc03:/dev/vdb
+dnuc01 ~# # Check ceph status
+dnuc01 ~# ceph -s
+  cluster:
+    id:     bffa7f7e-4e8e-11eb-8336-91ab43728af7
+    health: HEALTH_OK
+
+  services:
+    mon: 3 daemons, quorum dnuc01,dnuc03,dnuc02 (age 13m)
+    mgr: dnuc01.darjzs(active, since 12m), standbys: dnuc02.xhdxud
+    osd: 3 osds: 3 up (since 3m), 3 in (since 3m)
+
+  data:
+    pools:   1 pools, 1 pgs
+    objects: 0 objects, 0 B
+    usage:   3.0 GiB used, 15 GiB / 18 GiB avail  # <- Sum of available volumes that consists of 3 nodes (dnuc01 - dnuc03).
+    pgs:     1 active+clean
+
 ```
 
 
+
+
+
 # Reference
+* Install Ceph 15 (Octopus) Storage Cluster on Ubuntu 20.04
 https://computingforgeeks.com/install-ceph-storage-cluster-on-ubuntu-linux-servers/
+
+* Ceph Persistent Storage for Kubernetes with Cephfs
+https://computingforgeeks.com/ceph-persistent-storage-for-kubernetes-with-cephfs/
 
