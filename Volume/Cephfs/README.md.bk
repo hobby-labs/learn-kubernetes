@@ -1,0 +1,84 @@
+# Servers
+
+dnuc01 (Ceph Deploy, Ceph Monitor, Object Storage)
+dnuc02 (Object Storage)
+dnuc03 (Object Storage)
+
+## Prerequisite
+
+Ceph Deploy(dnuc01) can access over SSH. Prefer to login without password.
+
+## Create Deployment environment for ceph
+
+```
+# pip3 install --user pipenv
+# mkdir ceph-deploy
+# cd ceph-deploy
+# pipenv install ceph-deploy
+# ls -ld ~/.local/share/virtualenvs/ceph-deploy-*
+drwxr-xr-x 5 root root 4096 Jan  3 04:47 /root/.local/share/virtualenvs/ceph-deploy-xxxxxxxx
+
+# cat Pipfile
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+ceph-deploy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
+
+# # The command below will be failed on ubuntu 20.04.
+# # pipenv run ceph-deploy new dnuc01
+# python3 -m venv ceph-deploy new dunu01
+```
+
+* Reference
+https://docs.python-guide.org/dev/virtualenvs/
+https://docs.ceph.com/projects/ceph-deploy/en/latest/
+
+
+
+```
+dnuc01 ~# apt -y install ceph-deploy ceph-common ceph-mds
+
+dnuc01 ~# # Start deploying a new cluster and create CLUSTER.conf and keyring for it.
+dnuc01 ~# # You have to specify a host that will be monitor of the host.
+dnuc01 ~# # The command below will failed on ubuntu 20.04.
+dnuc01 ~# #   pipenv run ceph-deploy new dnuc01
+dnuc01 ~# # So you should run the command as below.
+dnuc01 ~# python3 -m venv ceph-deploy new dunu01
+
+dnuc01 ~# # Install Ceph on each node
+dnuc01 ~# python3 -m venv ceph-deploy install dnuc01 dnuc02 dnuc03
+
+dnuc01 ~# # Settings for monitoring and keys
+dnuc01 ~# python3 -m venv ceph-deploy mon create-initial
+
+dnuc01 ~# # Configure manager node
+dnuc01 ~# python3 -m venv ceph-deploy mgr create dnuc01
+```
+
+Configure Ceph cluster from admin node
+
+```
+dnuc01 ~# # Prepare object storage daemon
+dnuc01 ~# python3 -m venv ceph-ceploy osd prepare dnuc01:/var/lib/ceph/osd dnuc02:/var/lib/ceph/osd dnuc03:/var/lib/ceph/osd
+
+dnuc01 ~# # Activate Object storage daemon
+dnuc01 ~# python3 -m venv ceph-deploy osd activate dnuc01:/var/lib/ceph/osd dnuc02:/var/lib/ceph/osd dnuc03:/var/lib/ceph/osd
+
+dnuc01 ~# # Transfer config files
+dnuc01 ~# python3 -m venv ceph-deploy admin dlp dnuc01 dnuc02 dnuc03
+
+dnuc01 ~# # Show status (no ploblem if HEALTH_OK)
+dnuc01 ~# python3 -m venv ceph status
+```
+
+# Reference
+https://www.server-world.info/en/note?os=Ubuntu_18.04&p=ceph&f=1
+https://naruport.com/blog/2020/1/22/python38-virtualenv-platform-linux-distribution/
