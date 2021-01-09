@@ -177,9 +177,13 @@ dnuc01 ~# ceph -s
 
 ```
 
+# Use ceph on Kubernetes
 
+## Get kubernetes key
 
-
+```
+ceph auth get-key client.admin
+```
 
 # Reference
 * Install Ceph 15 (Octopus) Storage Cluster on Ubuntu 20.04
