@@ -108,9 +108,13 @@ dnuc01 ~# docker ps
 ## Attach new disk
 
 ```
-nuc0[123] ~# qemu-img create -f qcow2 ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdb.img 5G
+nuc0[123] ~# qemu-img create -f qcow2 /var/kvm/distros/ubuntu_$(uname -n)/vdb.img 10G
+nuc0[123] ~# qemu-img create -f qcow2 /var/kvm/distros/ubuntu_$(uname -n)/vdc.img 10G
+nuc0[123] ~# qemu-img create -f qcow2 /var/kvm/distros/ubuntu_$(uname -n)/vdd.img 10G
 nuc0[123] ~# # Add disk image as persistent volumes
-nuc0[123] ~# virsh attach-disk ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdb.img --target vdb --persistent
+nuc0[123] ~# virsh attach-disk ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdb.img --target vdb --driver qemu --subdriver qcow2 --persistent
+nuc0[123] ~# virsh attach-disk ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdc.img --target vdc --driver qemu --subdriver qcow2 --persistent
+nuc0[123] ~# virsh attach-disk ubuntu_$(uname -n) /var/kvm/distros/ubuntu_$(uname -n)/vdd.img --target vdd --driver qemu --subdriver qcow2 --persistent
 ```
 
 https://www.cyberciti.biz/faq/how-to-add-disk-image-to-kvm-virtual-machine-with-virsh-command/
